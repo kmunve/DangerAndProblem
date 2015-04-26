@@ -206,7 +206,7 @@ def plot_histogram_on_danger_level(title, key, data_set, file_name):
 
 if __name__ == "__main__":
 
-    #regions_kdv = GRO.get_kdv("ForecastRegionKDV")
+    # regions_kdv = GRO.get_kdv("ForecastRegionKDV")
     regions = list(range(106, 134))     # ForecastRegionTID = 133 is the last and is Salten
 
     date_from = "2014-12-01"
@@ -214,9 +214,9 @@ if __name__ == "__main__":
     pickle_warnings_file_name = '{0}{1}'.format(data_folder, 'runForMatrix warnings.pickle')
     pickle_data_set_file_name = '{0}{1}'.format(data_folder, 'runForMatrix data set.pickle')
 
-
-    pickle_warnings(regions, date_from, date_to, pickle_warnings_file_name)
-    warnings = RP.unpickle_anything(pickle_warnings_file_name)
+    #### With it piclked you dont need to read on the api all the time ####
+    # pickle_warnings(regions, date_from, date_to, pickle_warnings_file_name)
+    # warnings = RP.unpickle_anything(pickle_warnings_file_name)
     # pickle_data_set(warnings, pickle_data_set_file_name, False)
     data_set = RP.unpickle_anything(pickle_data_set_file_name)
 
