@@ -135,7 +135,7 @@ def plot_histogram(title, data_series, data_labels, filename):
     P.savefig(filename)
     P.close(fig)
 
-def plot_histogram_on_danger_level(title, key, data_set, file_name):
+def plot_histogram_on_danger_level(title, key, data_set, file_name, normalized=False, file_ext=".png"):
     '''
     Messy but generic for its use. Plots a histogram on the requested data series for each danger level.
 
@@ -156,6 +156,15 @@ def plot_histogram_on_danger_level(title, key, data_set, file_name):
     level_values = data_set['level']['values']
     level_colors =  data_set['level']['colors']
 
+    if normalized:
+        title = title + "(normalized)"
+        file_name = file_name + "_norm"
+        # Get danger level distribution used for normalizing
+        level_distribution = []
+        for dl in level_keys:
+            level_distribution.append(level_values.count(dl))
+
+
     # this list is expanded as it loops trough the for loops below. Index given by [level_keys]
     numbers = []
     for i in range(0, len(data_values), 1):
@@ -165,13 +174,18 @@ def plot_histogram_on_danger_level(title, key, data_set, file_name):
                 # collect all data events on the danger level they occur
                 numbers[j].append(data_values[i])
 
+
     # this nested list ins indexed [level_keys][data_keys]. I is expanded as it loops trough the for loops below.
     more_numbers = []
     for i in range(0, len(level_keys), 1):
         more_numbers.append([])
         for j in range(0, len(data_keys), 1):
             # count occurrences of data pr danger level
-            more_numbers[i].append([numbers[i].count(data_keys[j]), level_colors[i]])
+            if normalized and level_distribution[i] > 0:
+                more_numbers[i].append([numbers[i].count(data_keys[j]) / float(level_distribution[i]),
+                                       level_colors[i]]) # normalizing by danger level
+            else:
+                more_numbers[i].append([numbers[i].count(data_keys[j]), level_colors[i]])
 
     # Figure dimensions
     fig = P.figure(figsize=(20, 10))
@@ -198,8 +212,8 @@ def plot_histogram_on_danger_level(title, key, data_set, file_name):
 
     P.xticks(ticks_place, data_keys)
 
-    # This saves the figure til file
-    P.savefig(file_name)
+    # This saves the figure to file
+    P.savefig(file_name+file_ext)
     P.close(fig)
 
     return
@@ -221,25 +235,34 @@ if __name__ == "__main__":
     data_set = RP.unpickle_anything(pickle_data_set_file_name)
 
     plot_histogram('frequency of levels', data_set['level']['values'], data_set['level']['keys'],
-                '{0}Histogram of levels {1} to {2}.png'.format(plot_folder, date_from, date_to))
+                '{0}Histogram of levels {1} to {2}'.format(plot_folder, date_from, date_to))
     plot_histogram('frequency of sizes', data_set['size']['values'], data_set['size']['keys'],
-                '{0}Histogram of sizes {1} to {2}.png'.format(plot_folder, date_from, date_to))
+                '{0}Histogram of sizes {1} to {2}'.format(plot_folder, date_from, date_to))
     plot_histogram('frequency of triggers', data_set['trigger']['values'], data_set['trigger']['keys'],
-                '{0}Histogram of triggers {1} to {2}.png'.format(plot_folder, date_from, date_to))
+                '{0}Histogram of triggers {1} to {2}'.format(plot_folder, date_from, date_to))
     plot_histogram('frequency of probabilities', data_set['probability']['values'], data_set['probability']['keys'],
-                '{0}Histogram of probabilities {1} to {2}.png'.format(plot_folder, date_from, date_to))
+                '{0}Histogram of probabilities {1} to {2}'.format(plot_folder, date_from, date_to))
     plot_histogram('frequency of distribution', data_set['distribution']['values'], data_set['distribution']['keys'],
-                '{0}Histogram of distribution {1} to {2}.png'.format(plot_folder, date_from, date_to))
+                '{0}Histogram of distribution {1} to {2}'.format(plot_folder, date_from, date_to))
 
     plot_histogram_on_danger_level('', 'size', data_set,
-                '{0}Histogram of size on danger level {1} to {2}.png'.format(plot_folder, date_from, date_to))
+                '{0}Histogram of size on danger level {1} to {2}'.format(plot_folder, date_from, date_to))
     plot_histogram_on_danger_level('', 'trigger', data_set,
-                '{0}Histogram of triggers on danger level {1} to {2}.png'.format(plot_folder, date_from, date_to))
+                '{0}Histogram of triggers on danger level {1} to {2}'.format(plot_folder, date_from, date_to))
     plot_histogram_on_danger_level('', 'probability', data_set,
-                '{0}Histogram of probabilities on danger level {1} to {2}.png'.format(plot_folder, date_from, date_to))
+                '{0}Histogram of probabilities on danger level {1} to {2}'.format(plot_folder, date_from, date_to))
     plot_histogram_on_danger_level('', 'distribution', data_set,
-                '{0}Histogram of distribution on danger level {1} to {2}.png'.format(plot_folder, date_from, date_to))
+                '{0}Histogram of distribution on danger level {1} to {2}'.format(plot_folder, date_from, date_to))
 
+
+    plot_histogram_on_danger_level('', 'size', data_set,
+                '{0}Histogram of size on danger level {1} to {2}'.format(plot_folder, date_from, date_to), normalized=True)
+    plot_histogram_on_danger_level('', 'trigger', data_set,
+                '{0}Histogram of triggers on danger level {1} to {2}'.format(plot_folder, date_from, date_to), normalized=True)
+    plot_histogram_on_danger_level('', 'probability', data_set,
+                '{0}Histogram of probabilities on danger level {1} to {2}'.format(plot_folder, date_from, date_to), normalized=True)
+    plot_histogram_on_danger_level('', 'distribution', data_set,
+                '{0}Histogram of distribution on danger level {1} to {2}'.format(plot_folder, date_from, date_to), normalized=True)
 
     a = 1
 
